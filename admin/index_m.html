@@ -52,22 +52,23 @@ function loadCitys(settings) {
 
                     citys = state.native.cityArray;
                     citys = citys.sort();
-                    console.log('All citys sorted object : ' + JSON.stringify(citys));
+					console.log('All citys sorted object : ' + JSON.stringify(citys));
+					console.log('Selected Citys : ' + JSON.stringify(settings.selectedCitys));
 
-                   /* var $citys = $('#citys');
+                    var $citys = $('#citys');
                     var text = '';
                     for (var i = 0; i < citys.length; i++) {
                         text += '<label class="col s4 input-field">' +
-                            '<input type="checkbox" class="city" ' + (settings.selectedCitys.indexOf(citys[i]) !== -1 ? 'checked ' : '') + ' data-citys="' + citys[i] + '" />' +
+                            '<input type="checkbox" class="citys" ' + (settings.selectedCitys.indexOf(citys[i]) !== -1 ? 'checked ' : '') + ' data-citys="' + citys[i] + '" />' +
                             '<span class="black-text">' + _(citys[i]) + '</span>' +
                             '</label>';
                     }
-                    $citys.html(text);*/
+                    $citys.html(text);
                 }
 
-        //        $('.country').on('change', function () {
-        //            _onChange()
-         //       });
+                $('.citys').on('change', function () {
+                    _onChange()
+                });
                 // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
                 M && M.updateTextFields();
             });
@@ -79,6 +80,7 @@ function loadCitys(settings) {
 		function load(settings, onChange) {
 			// example: select elements with id=key and class=value and insert value
 			if (!settings) return;
+			_onChange = onChange;
 			$('.value').each(function () {
 				var $key = $(this);
 				var id = $key.attr('id');
@@ -96,17 +98,28 @@ function loadCitys(settings) {
 				}
 			});
 
-			loadCitys();
+			loadCitys(settings);
 
-			onChange(false);
+			_onChange(false);
 			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
 			if (M) M.updateTextFields();
 		}
 
 		// This will be called by the admin adapter when the user presses the save button
 		function save(callback) {
+
+			var obj = {
+                selectedCitys: []
+            };
+
+
+			$('.citys').each(function () {
+                if ($(this).prop('checked')) {
+                    obj.selectedCitys.push($(this).data('citys'));
+                }
+            });
 			// example: select elements with class=value and build settings object
-			var obj = {};
+			//var obj = {};
 			$('.value').each(function () {
 				var $this = $(this);
 				if ($this.attr('type') === 'checkbox') {

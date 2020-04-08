@@ -1,31 +1,48 @@
 {
-  "name": "iobroker.deutschebahn",
-  "version": "0.0.2",
-  "description": "Adapter for pulling shedule from DB for a location",
+  "_from": "file:C:/Users/repti/Documents/IOBrokerAdapterDEV/ioBroker.deutschebahn/iobroker.deutschebahn-0.0.2.tgz",
+  "_id": "iobroker.deutschebahn@0.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-s9Q9iD78km+u9Jf+fgaLieFEGCxbBAM3SliiSJy/eFvXriIPwP0g89+otsfQ0Xw4M7P1yZ9nIO211Uhb6PL1RQ==",
+  "_location": "/iobroker.deutschebahn",
+  "_phantomChildren": {
+    "@types/node": "12.12.12",
+    "lodash": "4.17.15",
+    "tough-cookie": "2.4.3"
+  },
+  "_requested": {
+    "type": "file",
+    "where": "C:\\iobroker\\DEV",
+    "raw": "C:\\Users\\repti\\Documents\\IOBrokerAdapterDEV\\ioBroker.deutschebahn\\iobroker.deutschebahn-0.0.2.tgz",
+    "rawSpec": "C:\\Users\\repti\\Documents\\IOBrokerAdapterDEV\\ioBroker.deutschebahn\\iobroker.deutschebahn-0.0.2.tgz",
+    "saveSpec": "file:C:/Users/repti/Documents/IOBrokerAdapterDEV/ioBroker.deutschebahn/iobroker.deutschebahn-0.0.2.tgz",
+    "fetchSpec": "C:/Users/repti/Documents/IOBrokerAdapterDEV/ioBroker.deutschebahn/iobroker.deutschebahn-0.0.2.tgz"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "C:/Users/repti/Documents/IOBrokerAdapterDEV/ioBroker.deutschebahn/iobroker.deutschebahn-0.0.2.tgz",
+  "_shasum": "fa33423cbba93415924a6be23848ec034373ef1d",
+  "_spec": "C:\\Users\\repti\\Documents\\IOBrokerAdapterDEV\\ioBroker.deutschebahn\\iobroker.deutschebahn-0.0.2.tgz",
+  "_where": "C:\\iobroker\\DEV",
   "author": {
     "name": "reptil1990",
     "email": "reptil@hotmail.de"
   },
+  "bugs": {
+    "url": "https://github.com/reptil1990/ioBroker.deutschebahn/issues"
+  },
+  "bundleDependencies": false,
   "contributors": [
     {
       "name": "DutchmanNL"
     }
   ],
-  "homepage": "https://github.com/reptil1990/ioBroker.deutschebahn",
-  "license": "MIT",
-  "keywords": [
-    "bahn",
-    "shedule",
-    "plan"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/reptil1990/ioBroker.deutschebahn"
-  },
   "dependencies": {
     "@iobroker/adapter-core": "^2.2.1",
     "request-promise-native": "^1.0.8"
   },
+  "deprecated": false,
+  "description": "Adapter for pulling shedule from DB for a location",
   "devDependencies": {
     "@iobroker/testing": "^2.1.0",
     "@types/chai": "^4.2.11",
@@ -43,20 +60,29 @@
     "gulp": "^4.0.2",
     "mocha": "^7.1.1",
     "proxyquire": "^2.1.3",
-    "sinon-chai": "^3.5.0",
-    "sinon": "^8.1.1"
+    "sinon": "^8.1.1",
+    "sinon-chai": "^3.5.0"
   },
+  "homepage": "https://github.com/reptil1990/ioBroker.deutschebahn",
+  "keywords": [
+    "bahn",
+    "shedule",
+    "plan"
+  ],
+  "license": "MIT",
   "main": "main.js",
+  "name": "iobroker.deutschebahn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reptil1990/ioBroker.deutschebahn.git"
+  },
   "scripts": {
+    "lint": "eslint",
+    "test": "npm run test:js && npm run test:package",
+    "test:integration": "mocha test/integration --exit",
     "test:js": "mocha --opts test/mocha.custom.opts",
     "test:package": "mocha test/package --exit",
-    "test:unit": "mocha test/unit --exit",
-    "test:integration": "mocha test/integration --exit",
-    "test": "npm run test:js && npm run test:package",
-    "lint": "eslint"
+    "test:unit": "mocha test/unit --exit"
   },
-  "bugs": {
-    "url": "https://github.com/reptil1990/ioBroker.deutschebahn/issues"
-  },
-  "readmeFilename": "README.md"
+  "version": "0.0.2"
 }

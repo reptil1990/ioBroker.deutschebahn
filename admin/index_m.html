@@ -1,0 +1,164 @@
+<html>
+
+<head>
+
+	<!-- Load ioBroker scripts and styles-->
+	<link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
+	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+
+	<script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+
+	<script type="text/javascript" src="../../js/translate.js"></script>
+	<script type="text/javascript" src="../../lib/js/materialize.js"></script>
+	<script type="text/javascript" src="../../js/adapter-settings.js"></script>
+
+	<!-- Load our own files -->
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<script type="text/javascript" src="words.js"></script>
+
+	<script type="text/javascript">
+		 var citys = null;
+		 var retryTimer = [];
+         var _onChange = null;
+
+function loadCitys(settings) {
+            // Read all citys from countryTranslator object
+            const result = getObject('deutschebahn.0.citys', (err, state) => {
+
+                // Error handling if citys are not known
+                if (!state.native.cityArray) {
+
+                    // console.log('Countries not yet present, did the adapter successfully run for the first time ?')
+
+                    // Reset timer (if running) and start new one for next polling interval
+                    if (retryTimer['loadCitys']) {
+                        clearTimeout(retryTimer['loadCitys']);
+                        retryTimer['loadCitys'] = null;
+                    }
+
+                    retryTimer['loadCitys'] = setTimeout(() => {
+                        loadCitys(settings);
+                    }, 1000);
+
+
+                } else {
+                    // Clear retry timer when running
+
+                    if (retryTimer['loadCitys']) {
+                        clearTimeout(retryTimer['loadCitys']);
+                        retryTimer['loadCitys'] = null;
+                    }
+
+                    citys = state.native.cityArray;
+                    citys = citys.sort();
+                    console.log('All citys sorted object : ' + JSON.stringify(citys));
+
+                   /* var $citys = $('#citys');
+                    var text = '';
+                    for (var i = 0; i < citys.length; i++) {
+                        text += '<label class="col s4 input-field">' +
+                            '<input type="checkbox" class="city" ' + (settings.selectedCitys.indexOf(citys[i]) !== -1 ? 'checked ' : '') + ' data-citys="' + citys[i] + '" />' +
+                            '<span class="black-text">' + _(citys[i]) + '</span>' +
+                            '</label>';
+                    }
+                    $citys.html(text);*/
+                }
+
+        //        $('.country').on('change', function () {
+        //            _onChange()
+         //       });
+                // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+                M && M.updateTextFields();
+            });
+        }
+
+
+
+		// This will be called by the admin adapter when the settings page loads
+		function load(settings, onChange) {
+			// example: select elements with id=key and class=value and insert value
+			if (!settings) return;
+			$('.value').each(function () {
+				var $key = $(this);
+				var id = $key.attr('id');
+				if ($key.attr('type') === 'checkbox') {
+					// do not call onChange direct, because onChange could expect some arguments
+					$key.prop('checked', settings[id])
+						.on('change', () => onChange())
+						;
+				} else {
+					// do not call onChange direct, because onChange could expect some arguments
+					$key.val(settings[id])
+						.on('change', () => onChange())
+						.on('keyup', () => onChange())
+						;
+				}
+			});
+
+			loadCitys();
+
+			onChange(false);
+			// reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
+			if (M) M.updateTextFields();
+		}
+
+		// This will be called by the admin adapter when the user presses the save button
+		function save(callback) {
+			// example: select elements with class=value and build settings object
+			var obj = {};
+			$('.value').each(function () {
+				var $this = $(this);
+				if ($this.attr('type') === 'checkbox') {
+					obj[$this.attr('id')] = $this.prop('checked');
+				} else {
+					obj[$this.attr('id')] = $this.val();
+				}
+			});
+			callback(obj);
+		}
+	</script>
+
+</head>
+
+<body>
+
+	<div class="m adapter-container">
+
+		<div class="row">
+			<div class="col s12 m4 l2">
+				<img src="deutschebahn.png" class="logo">
+			</div>
+		</div>
+
+		<!-- Put your content here -->
+		<div class="section" id="Settings">
+			<!-- For example columns with settings: -->
+			<div class="row">
+				<div class="col s6 input-field">
+					<input type="text" class="value" id="city" />
+					<label for="city" class="translate">City</label>
+				</div>
+
+				<div class="col s6 input-field">
+					<input type="checkbox" class="value" id="testData" />
+					<label for="testData" class="translate">Use test data</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="section" id="TableCitys">
+			<!-- Create list off all German Federal States -->
+			<div class="row" id="citys">
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>
+				<h6 class="center translate">Selection not (yet) available, adapter must successfully run 1 time with this section enabled!</h6>
+			</div>
+			<!-- Create list off all German Federal States -->
+		</div>
+	</div>
+
+</body>
+
+</html>

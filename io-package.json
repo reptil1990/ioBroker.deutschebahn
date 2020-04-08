@@ -1,0 +1,101 @@
+{
+    "common": {
+        "name": "deutschebahn",
+        "version": "0.0.2",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Fahrplan Deutsche Bahn",
+        "titleLang": {
+            "en": "Fahrplan Deutsche Bahn",
+            "de": "Fahrplan Deutsche Bahn",
+            "ru": "Fahrplan Deutsche Bahn",
+            "pt": "Fahrplan Deutsche Bahn",
+            "nl": "Fahrplan Deutsche Bahn",
+            "fr": "Fahrplan Deutsche Bahn",
+            "it": "Fahrplan Deutsche Bahn",
+            "es": "Fahrplan Deutsche Bahn",
+            "pl": "Fahrplan Deutsche Bahn",
+            "zh-cn": "法尔普兰德德国铁路"
+        },
+        "desc": {
+            "en": "Adapter for pulling shedule from DB for a location",
+            "de": "Adapter zum Ziehen des Zeitplans aus der Datenbank für einen Standort",
+            "ru": "Адаптер для вытягивания расписания из БД для локации",
+            "pt": "Adaptador para puxar shedule do DB para um local",
+            "nl": "Adapter voor het trekken van schema van DB voor een locatie",
+            "fr": "Adaptateur pour tirer le hangar de DB pour un emplacement",
+            "it": "Adattatore per estrarre shedule dal DB per una posizione",
+            "es": "Adaptador para extraer el horario de la base de datos para una ubicación",
+            "pl": "Adapter do wyciągania harmonogramu z DB dla lokalizacji",
+            "zh-cn": "用于从数据库拉出棚架的适配器"
+        },
+        "authors": [
+            "reptil1990 <reptil@hotmail.de>"
+        ],
+        "keywords": [
+            "bahn",
+            "shedule",
+            "plan"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "deutschebahn.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/reptil1990/ioBroker.deutschebahn/master/admin/deutschebahn.png",
+        "readme": "https://github.com/reptil1990/ioBroker.deutschebahn/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "schedule",
+        "schedule": "*/15 * * * *",
+        "allowInit": true,
+        "type": "vehicle",
+        "compact": true,
+        "connectionType": "cloud",
+        "dataSource": "poll",
+        "materialize": true,
+        "materializeTab": true,
+        "adminTab": {
+            "singleton": true,
+            "name": {
+                "en": "Fahrplan Deutsche Bahn",
+                "de": "Fahrplan Deutsche Bahn",
+                "ru": "Fahrplan Deutsche Bahn",
+                "pt": "Fahrplan Deutsche Bahn",
+                "nl": "Fahrplan Deutsche Bahn",
+                "fr": "Fahrplan Deutsche Bahn",
+                "it": "Fahrplan Deutsche Bahn",
+                "es": "Fahrplan Deutsche Bahn",
+                "pl": "Fahrplan Deutsche Bahn",
+                "zh-cn": "法尔普兰德德国铁路"
+            },
+            "link": "",
+            "fa-icon": "info"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "native": {
+        "city": "Berlin",
+        "testData": true,
+        "selectedCitys": [
+            ""
+        ]
+    },
+    "objects": [],
+    "instanceObjects": []
+}

@@ -52,7 +52,7 @@ function loadCitys(settings) {
                     }
 
                     citys = state.native.cityArray;
-                    citys = citys.sort();
+                    //citys = citys.sort();
 					console.log('All citys sorted object : ' + JSON.stringify(citys));
 					console.log('Selected Citys : ' + JSON.stringify(settings.selectedCitys));
 
@@ -133,15 +133,17 @@ function loadCitys(settings) {
 			callback(obj);
 		}
 	
-	function onEnter(event)
+	function onKeypree(event)
    {     
       var code = 0;
-      code = event.keyCode;
-      if (code==13){
-		console.log(`Keycode13`);
-	 	
+	  code = event.keyCode;
 	  
-	}
+		console.log(`Keycode: ${code}`);
+		 var selection = document.getElementById("TableCitys");
+		 selection.style.display = "none";
+		 citys = null;
+		 
+	
     }
 
 	</script>
@@ -163,7 +165,7 @@ function loadCitys(settings) {
 			<!-- For example columns with settings: -->
 			<div class="row">
 				<div class="col s6 input-field">
-					<input type="text" class="value" id="city" onKeyPress="onEnter(event)" />
+					<input type="text" class="value" id="city" onKeyPress="onKeypree(event)" />
 					<label for="city" class="translate">City</label>
 				</div>
 

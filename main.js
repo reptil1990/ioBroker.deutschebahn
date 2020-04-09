@@ -10,6 +10,10 @@ const utils = require('@iobroker/adapter-core');
 const request = require('request-promise-native');
 const testData = require('./lib/testData.js');
 const stateAttr = require('./lib/stateAttr.js');
+//DB API wrappers
+const createHafas = require('db-hafas');
+const _fahrplan = require('fahrplan')('1b526266e8f45272b55250b067dc23b1');
+
 
 // Load your modules here, e.g.:
 // const fs = require("fs");
@@ -31,6 +35,8 @@ class Deutschebahn extends utils.Adapter {
 		this.on('unload', this.onUnload.bind(this));
 
 		this.citys = {};
+		this.arrivals = {};
+		this.departures = {};
 	}
 
 	/**
@@ -41,7 +47,9 @@ class Deutschebahn extends utils.Adapter {
 		try{
 
 			await this.getStations();
-			await this.getDepartures();
+
+				//	await this.getDepartures();
+		//	await this.getArrivals();
 
 		/*	let city = this.config.city;
 			city = city !== undefined ? city || 'Berlin' : 'Berlin';
@@ -227,6 +235,7 @@ class Deutschebahn extends utils.Adapter {
 			let values = null;
 			const cityArray = [];
 			const city =  this.config.city !== undefined ?  this.config.city || 'Berlin' : 'Berlin';
+			
 
 			const result = await request(`https://api.deutschebahn.com/freeplan/v1/location/${city}`);
 			this.log.debug(`Data from DB API received : ${result}`);
@@ -237,10 +246,16 @@ class Deutschebahn extends utils.Adapter {
 			for (const arrayIndex of Object.keys(values)) {
 				this.log.info(JSON.stringify(values[arrayIndex]));
 				const name = values[arrayIndex].name;
+				
 				cityArray.push(name);
 
 
 			}
+
+			
+			this.getDepartures(values[0].id);
+			this.getArrivals(values[0].id);
+
 
 			await this.extendObjectAsync('citys', {
 				type: 'state',
@@ -259,36 +274,88 @@ class Deutschebahn extends utils.Adapter {
 			this.log.error(`[API request failed] error: ${error.message}, stack: ${error.stack}`);
 		}
 
-		
 
 	}
-	async getDepartures(){
+	async getDepartures(id){
 
-		var id = "8000096";
+		if(!id){id = "8000096";}
 		var time = null;
 		var requestString = null;
 		var today = null;
-		var DateObject = new Date();
-		var dd = String(DateObject.getDate()).padStart(2, '0');
-		var mm = String(DateObject.getMonth() + 1).padStart(2, '0'); //January is 0!
-		var yyyy = DateObject.getFullYear();
-		today = mm + '/' + dd + '/' + yyyy;
+		const DateObject = new Date();
+		const dd = String(DateObject.getDate()).padStart(2, '0');
+		const mm = String(DateObject.getMonth() + 1).padStart(2, '0'); //January is 0!
+		const yyyy = DateObject.getFullYear();
+		const hh = String(DateObject.getHours()).padStart(2, '0');
+		const min = String(DateObject.getMinutes()).padStart(2, '0');
+		
 
+		const apiURL = "https://api.deutschebahn.com/freeplan/v1/departureBoard/";  //https://api.deutschebahn.com/freeplan/v1/departureBoard/8000096?date=2020-04-09T16%3A00
 
-		var apiURL = "https://api.deutschebahn.com/freeplan/v1/departureBoard/";  //https://api.deutschebahn.com/freeplan/v1/departureBoard/8000096?date=2020-04-09T16%3A00
-
-		time = yyyy + "-" + mm + "-" + dd + "T" +DateObject.getHours() + ":" + DateObject.getMinutes();
+		time = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + min;
 		time = time.toString();
-		this.log.debug(`TimeString : ${time}`);
+		//this.log.debug(`TimeString : ${time}`);
 		requestString = id + "?date=" + time;
 		requestString = encodeURI(requestString);
-		this.log.debug(`RequestString : ${requestString}`);
+		this.log.debug(`RequestString DEPARTURES: ${requestString}`);
 
-		const result = await request(`https://api.deutschebahn.com/freeplan/v1/departureBoard/${requestString}`);
+		const result = await request(apiURL + requestString);
 		this.log.debug(`Data from DB API DEPARTURES : ${result}`);
+
+		await this.extendObjectAsync('Departures', {
+			type: 'state',
+			common: {
+				name: `Next Departures`,
+			},
+			native: {
+				
+			},
+		});
+
+
+		await this.setStateAsync('Departures', {val: result, ack: true});
 
 	}
 
+	async getArrivals(id){
+
+		if(!id){id = "8000096";}
+		var time = null;
+		var requestString = null;
+		var today = null;
+		const DateObject = new Date();
+		const dd = String(DateObject.getDate()).padStart(2, '0');
+		const mm = String(DateObject.getMonth() + 1).padStart(2, '0'); //January is 0!
+		const yyyy = DateObject.getFullYear();
+		const hh = String(DateObject.getHours()).padStart(2, '0');
+		const min = String(DateObject.getMinutes()).padStart(2, '0');
+		
+
+		const apiURL = "https://api.deutschebahn.com/freeplan/v1/arrivalBoard/";  //https://api.deutschebahn.com/freeplan/v1/arrivalBoard/8000096?date=2020-04-09T22%3A37
+
+		time = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + min;
+		time = time.toString();
+		//this.log.debug(`TimeString : ${time}`);
+		requestString = id + "?date=" + time;
+		requestString = encodeURI(requestString);
+		this.log.debug(`RequestString ARRIVALS: ${requestString}`);
+
+		const result = await request(apiURL + requestString);
+		this.log.debug(`Data from DB API ARRIVALS : ${result}`);
+
+		await this.extendObjectAsync('Arrivals', {
+			type: 'state',
+			common: {
+				name: `Next Arrivals`,
+			},
+			native: {
+				
+			},
+		});
+
+		await this.setStateAsync('Arrivals', {val: result, ack: true});
+
+	}
 
 
 	// /**

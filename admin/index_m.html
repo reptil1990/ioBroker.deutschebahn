@@ -20,7 +20,8 @@
 	<script type="text/javascript">
 		 var citys = null;
 		 var retryTimer = [];
-         var _onChange = null;
+		 var _onChange = null;
+		 var _settings = null;
 
 function loadCitys(settings) {
             // Read all citys from countryTranslator object
@@ -80,6 +81,7 @@ function loadCitys(settings) {
 		function load(settings, onChange) {
 			// example: select elements with id=key and class=value and insert value
 			if (!settings) return;
+			_settings = settings;
 			_onChange = onChange;
 			$('.value').each(function () {
 				var $key = $(this);
@@ -130,6 +132,18 @@ function loadCitys(settings) {
 			});
 			callback(obj);
 		}
+	
+	function onEnter(event)
+   {     
+      var code = 0;
+      code = event.keyCode;
+      if (code==13){
+		console.log(`Keycode13`);
+	 	
+	  
+	}
+    }
+
 	</script>
 
 </head>
@@ -149,7 +163,7 @@ function loadCitys(settings) {
 			<!-- For example columns with settings: -->
 			<div class="row">
 				<div class="col s6 input-field">
-					<input type="text" class="value" id="city" />
+					<input type="text" class="value" id="city" onKeyPress="onEnter(event)" />
 					<label for="city" class="translate">City</label>
 				</div>
 
@@ -161,14 +175,14 @@ function loadCitys(settings) {
 		</div>
 
 		<div class="section" id="TableCitys">
-			<!-- Create list off all German Federal States -->
+			<!-- Create list off all found Citys -->
 			<div class="row" id="citys">
 				<div class="progress">
 					<div class="indeterminate"></div>
 				</div>
 				<h6 class="center translate">Selection not (yet) available, adapter must successfully run 1 time with this section enabled!</h6>
 			</div>
-			<!-- Create list off all German Federal States -->
+			<!-- Create list off all found Citys -->
 		</div>
 	</div>
 

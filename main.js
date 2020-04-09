@@ -41,6 +41,7 @@ class Deutschebahn extends utils.Adapter {
 		try{
 
 			await this.getStations();
+			await this.getDepartures();
 
 		/*	let city = this.config.city;
 			city = city !== undefined ? city || 'Berlin' : 'Berlin';
@@ -251,14 +252,42 @@ class Deutschebahn extends utils.Adapter {
 				},
 			});
 
+
 			await this.setStateAsync('citys', {val: JSON.stringify(cityArray), ack: true});
 
 		} catch (error) {
 			this.log.error(`[API request failed] error: ${error.message}, stack: ${error.stack}`);
 		}
 
-	}
+		
 
+	}
+	async getDepartures(){
+
+		var id = "8000096";
+		var time = null;
+		var requestString = null;
+		var today = null;
+		var DateObject = new Date();
+		var dd = String(DateObject.getDate()).padStart(2, '0');
+		var mm = String(DateObject.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = DateObject.getFullYear();
+		today = mm + '/' + dd + '/' + yyyy;
+
+
+		var apiURL = "https://api.deutschebahn.com/freeplan/v1/departureBoard/";  //https://api.deutschebahn.com/freeplan/v1/departureBoard/8000096?date=2020-04-09T16%3A00
+
+		time = yyyy + "-" + mm + "-" + dd + "T" +DateObject.getHours() + ":" + DateObject.getMinutes();
+		time = time.toString();
+		this.log.debug(`TimeString : ${time}`);
+		requestString = id + "?date=" + time;
+		requestString = encodeURI(requestString);
+		this.log.debug(`RequestString : ${requestString}`);
+
+		const result = await request(`https://api.deutschebahn.com/freeplan/v1/departureBoard/${requestString}`);
+		this.log.debug(`Data from DB API DEPARTURES : ${result}`);
+
+	}
 
 
 

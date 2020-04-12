@@ -22,6 +22,7 @@
 		 var retryTimer = [];
 		 var _onChange = null;
 		 var _settings = null;
+		 var timeoffset = null;
 
 function loadCitys(settings) {
             // Read all citys from countryTranslator object
@@ -175,6 +176,20 @@ function loadCitys(settings) {
 				</div>
 			</div>
 		</div>
+
+		<div class="row">
+            <div class="input-field col s10 m4">
+                <select id="timeofset" class="value">
+					<option value="" class="translate">Select Timeoffset</option>
+					<option value="0">Use Current time</option>
+                    <option value="1">1 Hour in the future</option>
+                    <option value="2">2 Hours in the future</option>
+                    <option value="3">3 Hours in the future</option>
+                    <option value="4">4 Hours in the future</option>
+                </select>
+                <label  class="translate" for="timeofset">Time Offset for Arrivals and Departures</label>
+            </div>
+        </div>
 
 		<div class="section" id="TableCitys">
 			<!-- Create list off all found Citys -->

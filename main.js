@@ -11,8 +11,7 @@ const request = require('request-promise-native');
 const testData = require('./lib/testData.js');
 const stateAttr = require('./lib/stateAttr.js');
 //DB API wrappers
-const createHafas = require('db-hafas');
-const _fahrplan = require('fahrplan')('1b526266e8f45272b55250b067dc23b1');
+// https://dbf.finalrewind.org/Stuttgart%20HBF?mode=json&limit=10
 
 
 // Load your modules here, e.g.:
@@ -243,24 +242,51 @@ class Deutschebahn extends utils.Adapter {
 
 			if(!values) return;
 
+			const stationdetails = {};
 			for (const arrayIndex of Object.keys(values)) {
 				this.log.info(JSON.stringify(values[arrayIndex]));
 				const name = values[arrayIndex].name;
 				
 				cityArray.push(name);
 
-
+				stationdetails[name] =  values[arrayIndex];
+				this.log.info(JSON.stringify(stationdetails));
+				console.log(stationdetails)
 			}
 
-			
-			this.getDepartures(values[0].id);
-			this.getArrivals(values[0].id);
+			const selectedCitys = this.config.selectedCitys;
+			console.log(selectedCitys)
+			for (const i in selectedCitys) {
+				//this.log.info(`Selected citys ${selectedCitys}`);
+				//console.log(`Selected citys ${selectedCitys}`);
+				this.log.info(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].id)}`);
+				this.log.info(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].name)}`);
 
 
-			await this.extendObjectAsync('citys', {
+				await this.setObjectAsync('StationDetails', {
+					// await this.extendObjectAsync('citys', {
+						type: 'state',
+						common: {
+							name: `StationDetails`,
+						},
+						native: {
+							stationdetails
+						},
+					});
+
+
+
+				//console.log(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].id)}`);
+			}
+
+			await this.getBoards(stationdetails[selectedCitys[0]].id);
+			//await this.getArrivals(values);
+
+			await this.setObjectAsync('citys', {
+			// await this.extendObjectAsync('citys', {
 				type: 'state',
 				common: {
-					name: `City array`,
+					name: `City's found from API`,
 				},
 				native: {
 					cityArray
@@ -270,15 +296,23 @@ class Deutschebahn extends utils.Adapter {
 
 			await this.setStateAsync('citys', {val: JSON.stringify(cityArray), ack: true});
 
+
+
 		} catch (error) {
 			this.log.error(`[API request failed] error: ${error.message}, stack: ${error.stack}`);
 		}
 
 
 	}
-	async getDepartures(id){
+	async getBoards(input){
 
-		if(!id){id = "8000096";}
+		var id = input;
+		//var name = input[0].name;
+
+		this.log.debug(`ID in get Departures: ${id}`);
+		//this.log.debug(`Name in get Departures: ${name}`);
+
+		//if(!id){id = "8000096";}
 		var time = null;
 		var requestString = null;
 		var today = null;
@@ -290,7 +324,8 @@ class Deutschebahn extends utils.Adapter {
 		const min = String(DateObject.getMinutes()).padStart(2, '0');
 		
 
-		const apiURL = "https://api.deutschebahn.com/freeplan/v1/departureBoard/";  //https://api.deutschebahn.com/freeplan/v1/departureBoard/8000096?date=2020-04-09T16%3A00
+		const apidepartureURL = "https://api.deutschebahn.com/freeplan/v1/departureBoard/";
+		const apiarrivalsURL = "https://api.deutschebahn.com/freeplan/v1/arrivalBoard/";  //https://api.deutschebahn.com/freeplan/v1/departureBoard/8000096?date=2020-04-09T16%3A00
 
 		time = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + min;
 		time = time.toString();
@@ -299,8 +334,10 @@ class Deutschebahn extends utils.Adapter {
 		requestString = encodeURI(requestString);
 		this.log.debug(`RequestString DEPARTURES: ${requestString}`);
 
-		const result = await request(apiURL + requestString);
-		this.log.debug(`Data from DB API DEPARTURES : ${result}`);
+		const resultDepartures = await request(apidepartureURL + requestString);
+		const resultArrivals = await request(apiarrivalsURL + requestString);
+		this.log.debug(`Data from DB API DEPARTURES : ${resultDepartures}`);
+		this.log.debug(`Data from DB API DEPARTURES : ${resultArrivals}`);
 
 		await this.extendObjectAsync('Departures', {
 			type: 'state',
@@ -312,14 +349,31 @@ class Deutschebahn extends utils.Adapter {
 			},
 		});
 
+		
+		await this.setStateAsync('Departures', {val: resultDepartures, ack: true});
+		
+		await this.extendObjectAsync('Arrivals', {
+			type: 'state',
+			common: {
+				name: `Next Arrivals`,
+			},
+			native: {
+				
+			},
+		});
 
-		await this.setStateAsync('Departures', {val: result, ack: true});
+		await this.setStateAsync('Arrivals', {val: resultArrivals, ack: true});
 
 	}
 
-	async getArrivals(id){
+	/*async getArrivals(input){
 
-		if(!id){id = "8000096";}
+		var id = input[0].id;
+		var name = input[0].name;
+		this.log.debug(`ID in get Arrivals: ${id}`);
+		this.log.debug(`Name in get Arrivals: ${name}`);
+
+		//if(!id){id = "8000096";}
 		var time = null;
 		var requestString = null;
 		var today = null;
@@ -355,7 +409,7 @@ class Deutschebahn extends utils.Adapter {
 
 		await this.setStateAsync('Arrivals', {val: result, ack: true});
 
-	}
+	}*/
 
 
 	// /**

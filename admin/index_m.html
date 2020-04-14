@@ -134,7 +134,7 @@ function loadCitys(settings) {
 			callback(obj);
 		}
 	
-	function onKeypree(event)
+	function onKeypress(event)
    {     
       var code = 0;
 	  code = event.keyCode;
@@ -166,7 +166,7 @@ function loadCitys(settings) {
 			<!-- For example columns with settings: -->
 			<div class="row">
 				<div class="col s6 input-field">
-					<input type="text" class="value" id="city" onKeyPress="onKeypree(event)" />
+					<input type="text" class="value" id="city" onKeyPress="onKeypress(event)" />
 					<label for="city" class="translate">City</label>
 				</div>
 

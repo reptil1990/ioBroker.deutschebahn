@@ -47,36 +47,6 @@ class Deutschebahn extends utils.Adapter {
 
 			await this.getStations();
 
-				//	await this.getDepartures();
-		//	await this.getArrivals();
-
-		/*	let city = this.config.city;
-			city = city !== undefined ? city || 'Berlin' : 'Berlin';
-			// Try to call API and get global information
-			let values = null;
-			if(this.config.testData){
-				values = testData;
-				this.log.debug(`Test Data set : ${JSON.stringify(testData)}`);
-			}
-			else{
-
-				
-			}
-			if(!values) return;
-
-			for (const arrayIndex of Object.keys(values)) {
-				this.log.info(JSON.stringify(values[arrayIndex]));
-				const name = values[arrayIndex].name;
-				for (const attributes in values[arrayIndex]){
-					await this.localCreateState(attributes,attributes,values[arrayIndex][attributes]);
-					this.log.debug(`Attributes ${attributes} of the Array ${arrayIndex} with Name ${name}`);
-
-				this.citys[name] = values[arrayIndex];
-
-				}
-			}
-*/
-
 			this.terminate ? this.terminate() : process.exit();
 			this.log.debug(`Run finished ${JSON.stringify(this.citys)}`);
 
@@ -97,17 +67,6 @@ class Deutschebahn extends utils.Adapter {
 		Here a simple template for a boolean variable named "testVariable"
 		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
 		*/
-		await this.setObjectAsync('testVariable', {
-			type: 'state',
-			common: {
-				name: 'testVariable',
-				type: 'boolean',
-				role: 'indicator',
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
 
 		// in this template all states changes inside the adapters namespace are subscribed
 		// this.subscribeStates('*');
@@ -244,14 +203,14 @@ class Deutschebahn extends utils.Adapter {
 
 			const stationdetails = {};
 			for (const arrayIndex of Object.keys(values)) {
-				this.log.info(JSON.stringify(values[arrayIndex]));
+				//this.log.debug(JSON.stringify(values[arrayIndex]));
 				const name = values[arrayIndex].name;
 				
 				cityArray.push(name);
 
 				stationdetails[name] =  values[arrayIndex];
-				this.log.info(JSON.stringify(stationdetails));
-				console.log(stationdetails)
+				//this.log.debug(JSON.stringify(stationdetails));
+				console.log(stationdetails);
 			}
 
 			const selectedCitys = this.config.selectedCitys;
@@ -259,11 +218,12 @@ class Deutschebahn extends utils.Adapter {
 			for (const i in selectedCitys) {
 				//this.log.info(`Selected citys ${selectedCitys}`);
 				//console.log(`Selected citys ${selectedCitys}`);
-				this.log.info(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].id)}`);
-				this.log.info(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].name)}`);
+				this.log.debug(`stationdetails[selectedCitys[i]].id : ${JSON.stringify(stationdetails[selectedCitys[i]].id)}`);
+				this.log.debug(`stationdetails[selectedCitys[i]].name : ${JSON.stringify(stationdetails[selectedCitys[i]].name)}`);
 
+				await this.getBoards(stationdetails[selectedCitys[i]]);
 
-				await this.setObjectAsync('StationDetails', {
+				/*await this.setObjectAsync(stationdetails[selectedCitys[i]].name, {
 					// await this.extendObjectAsync('citys', {
 						type: 'state',
 						common: {
@@ -273,13 +233,15 @@ class Deutschebahn extends utils.Adapter {
 							stationdetails
 						},
 					});
+				*/
 
-
+					//await this.setStateAsync('StationDetails', {val: JSON.stringify(stationdetails[selectedCitys[i]]), ack: true});
 
 				//console.log(`Ger city details : ${JSON.stringify(stationdetails[selectedCitys[i]].id)}`);
+				
 			}
 
-			await this.getBoards(stationdetails[selectedCitys[0]].id);
+			
 			//await this.getArrivals(values);
 
 			await this.setObjectAsync('citys', {
@@ -306,15 +268,19 @@ class Deutschebahn extends utils.Adapter {
 	}
 	async getBoards(input){
 
-		var id = input;
+		var id = input.id;
+		var name = input.name;
 		//var name = input[0].name;
 
-		this.log.debug(`ID in get Departures: ${id}`);
-		//this.log.debug(`Name in get Departures: ${name}`);
+		this.log.debug(`Input in getBoards: ${JSON.stringify(input)}`);
+		this.log.debug(`ID in getBoards: ${id}`);
+		this.log.debug(`Name in getBoards: ${name}`);
 
 		//if(!id){id = "8000096";}
 		var time = null;
 		var requestString = null;
+		let departureJSON = null;
+		let arrivalJSON = null;
 		var today = null;
 		const DateObject = new Date();
 		const dd = String(DateObject.getDate()).padStart(2, '0');
@@ -336,9 +302,93 @@ class Deutschebahn extends utils.Adapter {
 
 		const resultDepartures = await request(apidepartureURL + requestString);
 		const resultArrivals = await request(apiarrivalsURL + requestString);
-		this.log.debug(`Data from DB API DEPARTURES : ${resultDepartures}`);
-		this.log.debug(`Data from DB API DEPARTURES : ${resultArrivals}`);
+		departureJSON = JSON.parse(resultDepartures);
+		arrivalJSON = JSON.parse(resultArrivals);
+		this.log.debug(`Data from DB API DEPARTURES : ${JSON.stringify(departureJSON)}`);
+		this.log.debug(`Data from DB API DEPARTURES : ${JSON.stringify(arrivalJSON)}`);
+		var keysdeparture = Object.keys(departureJSON[0]);
+		var keysarrival = Object.keys(arrivalJSON[0]);
+		
 
+		//Create States for the Stations
+
+		await this.setObjectAsync(name, {
+			// await this.extendObjectAsync('citys', {
+				type: 'state',
+				common: {
+					name: `Name of the Station`,
+				},
+				native: {
+				},
+			});
+
+			await this.setObjectAsync(name + '.Arrivals', {
+				// await this.extendObjectAsync('citys', {
+					type: 'state',
+					common: {
+						name: `Arrivals of the Station`,
+					},
+					native: {
+					},
+				});
+
+				await this.setObjectAsync(name +'.Departures', {
+					// await this.extendObjectAsync('citys', {
+						type: 'state',
+						common: {
+							name: `Departures of the Station`,
+						},
+						native: {
+						},
+					});
+
+			for(const i in departureJSON){
+
+				await this.setObjectAsync(name + '.Departures.' + departureJSON[i].name, {
+					// await this.extendObjectAsync('citys', {
+						type: 'state',
+						common: {
+							name: `Name of train`,
+						},
+						native: {
+						},
+					});
+
+					for(const j in keysdeparture){
+
+						await this.setObjectAsync(name + '.Departures.' + departureJSON[i].name + '.' + keysdeparture[j], {
+							// await this.extendObjectAsync('citys', {
+								type: 'state',
+								common: {
+									name: `Name of train`,
+								},
+								native: {
+								},
+							});
+						console.log(departureJSON[i].keysdeparture[j]);
+						await this.setStateAsync(name + '.Departures.' + departureJSON[i].name + '.' + keysdeparture[j], {val: departureJSON[i], ack: true});
+						
+
+					}
+
+			}
+
+			for(const i in arrivalJSON){
+
+				await this.setObjectAsync(name + '.Arrivals.' + arrivalJSON[i].name, {
+					// await this.extendObjectAsync('citys', {
+						type: 'state',
+						common: {
+							name: `Name of train`,
+						},
+						native: {
+						},
+					});
+			}
+			//await this.setStateAsync(departureJSON + '.' + departureJSON[0].type {val: departureJSON.type, ack: true});
+
+
+/*
 		await this.extendObjectAsync('Departures', {
 			type: 'state',
 			common: {
@@ -349,67 +399,21 @@ class Deutschebahn extends utils.Adapter {
 			},
 		});
 
+		await this.extendObjectAsync('Arrivals', {
+			type: 'state',
+			common: {
+				name: `Next Arrivals`,
+			},
+			native: {
+				
+			},
+		});
 		
 		await this.setStateAsync('Departures', {val: resultDepartures, ack: true});
-		
-		await this.extendObjectAsync('Arrivals', {
-			type: 'state',
-			common: {
-				name: `Next Arrivals`,
-			},
-			native: {
-				
-			},
-		});
-
 		await this.setStateAsync('Arrivals', {val: resultArrivals, ack: true});
+		*/
 
 	}
-
-	/*async getArrivals(input){
-
-		var id = input[0].id;
-		var name = input[0].name;
-		this.log.debug(`ID in get Arrivals: ${id}`);
-		this.log.debug(`Name in get Arrivals: ${name}`);
-
-		//if(!id){id = "8000096";}
-		var time = null;
-		var requestString = null;
-		var today = null;
-		const DateObject = new Date();
-		const dd = String(DateObject.getDate()).padStart(2, '0');
-		const mm = String(DateObject.getMonth() + 1).padStart(2, '0'); //January is 0!
-		const yyyy = DateObject.getFullYear();
-		const hh = String(DateObject.getHours()).padStart(2, '0');
-		const min = String(DateObject.getMinutes()).padStart(2, '0');
-		
-
-		const apiURL = "https://api.deutschebahn.com/freeplan/v1/arrivalBoard/";  //https://api.deutschebahn.com/freeplan/v1/arrivalBoard/8000096?date=2020-04-09T22%3A37
-
-		time = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + min;
-		time = time.toString();
-		//this.log.debug(`TimeString : ${time}`);
-		requestString = id + "?date=" + time;
-		requestString = encodeURI(requestString);
-		this.log.debug(`RequestString ARRIVALS: ${requestString}`);
-
-		const result = await request(apiURL + requestString);
-		this.log.debug(`Data from DB API ARRIVALS : ${result}`);
-
-		await this.extendObjectAsync('Arrivals', {
-			type: 'state',
-			common: {
-				name: `Next Arrivals`,
-			},
-			native: {
-				
-			},
-		});
-
-		await this.setStateAsync('Arrivals', {val: result, ack: true});
-
-	}*/
 
 
 	// /**

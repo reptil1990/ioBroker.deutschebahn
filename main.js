@@ -314,7 +314,7 @@ class Deutschebahn extends utils.Adapter {
 
 		await this.setObjectAsync(name, {
 			// await this.extendObjectAsync('citys', {
-				type: 'state',
+				type: 'channel',
 				common: {
 					name: `Name of the Station`,
 				},
@@ -324,29 +324,66 @@ class Deutschebahn extends utils.Adapter {
 
 			await this.setObjectAsync(name + '.Arrivals', {
 				// await this.extendObjectAsync('citys', {
-					type: 'state',
+					type: 'channel',
 					common: {
 						name: `Arrivals of the Station`,
 					},
 					native: {
 					},
 				});
-
+				try{
+					//await this.deleteChannel(name);
+					
 				await this.setObjectAsync(name +'.Departures', {
 					// await this.extendObjectAsync('citys', {
-						type: 'state',
+						type: 'channel',
 						common: {
 							name: `Departures of the Station`,
 						},
 						native: {
 						},
 					});
+					
+					for (const depart of Object.keys(departureJSON)) {
+						console.log(departureJSON[depart])
 
-			for(const i in departureJSON){
+							for (const value of Object.keys(departureJSON[depart])) {
+
+								const stateName = `${await this.characterReplace(name)}.Departures.${departureJSON[depart].type}.${await this.characterReplace(departureJSON[depart].name)}`;
+								await this.setObjectAsync(stateName, {
+									// await this.extendObjectAsync('citys', {
+										type: 'channel',
+										common: {
+											name: departureJSON[depart].dateTime.slice(11, 16),
+										},
+										native: {
+										},
+									});
+								await this.setObjectNotExistsAsync(`${stateName}.${value}`, {
+									type: 'state',
+									common: {
+										name: value,
+										role: 'state'
+									},
+									native: {},
+								});
+
+								await this.setStateAsync(`${stateName}.${value}`, {val: await this.characterReplace(departureJSON[depart][value]), ack: true});
+							}
+						
+
+					}
+					console.log(departureJSON)
+				}
+				catch (error){
+					console.log(`CATCH: ${error}`);
+				}
+					/*
+			for(var i=0; i<departureJSON.length;i++){
 
 				await this.setObjectAsync(name + '.Departures.' + departureJSON[i].name, {
 					// await this.extendObjectAsync('citys', {
-						type: 'state',
+						type: 'channel',
 						common: {
 							name: `Name of train`,
 						},
@@ -354,7 +391,10 @@ class Deutschebahn extends utils.Adapter {
 						},
 					});
 
-					for(const j in keysdeparture){
+
+					console.log(departureJSON[i]);
+					
+					for(var j=0; j<keysdeparture.length;j++){
 
 						await this.setObjectAsync(name + '.Departures.' + departureJSON[i].name + '.' + keysdeparture[j], {
 							// await this.extendObjectAsync('citys', {
@@ -365,19 +405,20 @@ class Deutschebahn extends utils.Adapter {
 								native: {
 								},
 							});
-						console.log(departureJSON[i].keysdeparture[j]);
-						await this.setStateAsync(name + '.Departures.' + departureJSON[i].name + '.' + keysdeparture[j], {val: departureJSON[i], ack: true});
+						//console.log(departureJSON[i].keysdeparture[j]);
+						var key = keysdeparture[j];
+						
 						
 
 					}
 
 			}
-
+*/
 			for(const i in arrivalJSON){
 
 				await this.setObjectAsync(name + '.Arrivals.' + arrivalJSON[i].name, {
 					// await this.extendObjectAsync('citys', {
-						type: 'state',
+						type: 'channel',
 						common: {
 							name: `Name of train`,
 						},
@@ -433,7 +474,25 @@ class Deutschebahn extends utils.Adapter {
 	// 	}
 	// }
 
+	async characterReplace(string) {
+		try {
+			
+			if(typeof(string != "string")){
+				return string;
+			}
+		string = string.replace(/\s/g, '_');
+		string = string.replace(/\./g, '');
+	} catch (error) {
+			console.error(`Replace issue ${string} : ${error}`)
+	}
+		return string;
+	}
+
+
 }
+
+
+
 
 // @ts-ignore parent is a valid property on module
 if (module.parent) {
